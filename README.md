@@ -2,11 +2,11 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="assets/banner-light.svg">
-    <img src="assets/banner-light.svg" width="880" alt="Deixis plugin for Claude Code. A pointer drops two numbered pins on a Trip Planner page while the spoken line appears in a small card, and the round arrives in a Claude Code session.">
+    <img src="assets/banner-light.svg" width="880" alt="Deixis plugin for Claude Code. A pointer drops two numbered pins on a Trip Planner page while the spoken line appears in a card, and the round arrives in a Claude Code session.">
   </picture>
 </p>
 
-<p align="center">The Claude Code plugin for <a href="https://deixis.folnaro.app/en/">Deixis</a>, the Mac app for screenshot feedback.</p>
+<p align="center">The Claude Code plugin for Deixis, the Mac app for screenshot feedback.</p>
 
 <p align="center">
   <a href="https://apps.apple.com/app/deixis/id6825313161"><img alt="Mac App Store" src="https://img.shields.io/badge/Mac%20App%20Store-0d84ff?style=flat-square&logo=apple&logoColor=white"></a>
@@ -15,7 +15,7 @@
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-55555c?style=flat-square&labelColor=1d1d1f"></a>
 </p>
 
-<p align="center"><a href="https://apps.apple.com/app/deixis/id6825313161">Mac App Store</a> · <a href="https://deixis.folnaro.app/en/">Website</a> · <a href="https://deixis.folnaro.app/en/support/">Support</a> · <a href="https://deixis.folnaro.app/en/privacy/">Privacy</a></p>
+<p align="center"><a href="https://deixis.folnaro.app/en/">Website</a> · <a href="https://deixis.folnaro.app/en/support/">Support</a> · <a href="https://deixis.folnaro.app/en/privacy/">Privacy</a></p>
 
 ## Install
 
@@ -110,7 +110,7 @@ Deixis has no account, no server and no tracking.
 ## Requirements
 
 - macOS 26 or later
-- [Deixis from the Mac App Store](https://apps.apple.com/app/deixis/id6825313161)
+- Deixis from the Mac App Store
 - Claude Code with plugin support
 
 ## License
