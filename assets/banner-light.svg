@@ -141,12 +141,12 @@
     <rect x="990" y="246" width="226" height=".8" fill="#ffffff" fill-opacity=".08"/>
     <circle cx="1004" cy="234" r="3.6" fill="#ffffff" fill-opacity=".18"/><circle cx="1015" cy="234" r="3.6" fill="#ffffff" fill-opacity=".18"/><circle cx="1026" cy="234" r="3.6" fill="#ffffff" fill-opacity=".18"/>
     <text x="1040" y="238" font-size="10.5" fill="#8a8d94">claude · trip-planner</text>
-    <text x="1002" y="266"><tspan fill="#ffb24a">✻</tspan> Claude Code</text>
+    <path d="M1005.5 257.7v8.6M1001.78 259.85l7.45 4.30M1001.78 264.15l7.45 -4.30" stroke="#ffb24a" stroke-width="1.7" stroke-linecap="round"/><text x="1016" y="266">Claude Code</text>
     <text x="1002" y="283" fill="#8a8d94">&gt; /deixis-watch</text>
     <text x="1002" y="300"><tspan fill="#ffb24a">●</tspan> watch_rounds()</text>
     <text id="t1" class="a" x="1002" y="317" xml:space="preserve" fill="#8a8d94">  Trip Planner · 2 points</text>
-    <text id="t2" class="a" x="1002" y="338"><tspan fill="#6fd48b">✓</tspan> Point 1 done</text>
-    <text id="t3" class="a" x="1002" y="355"><tspan fill="#6fd48b">✓</tspan> Point 2 done</text>
+    <g id="t2" class="a"><path d="M1002.6 333.8l2.4 2.6 4.6-6" fill="none" stroke="#6fd48b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><text x="1016" y="338">Point 1 done</text></g>
+    <g id="t3" class="a"><path d="M1002.6 350.8l2.4 2.6 4.6-6" fill="none" stroke="#6fd48b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><text x="1016" y="355">Point 2 done</text></g>
   </g>
 
   <!-- Threads from the spoken word to the pointer -->

@@ -43,12 +43,12 @@
     <text x="900" y="94"><tspan fill="#ffb24a">●</tspan> watch_rounds()</text>
     <text x="900" y="114" fill="#8a8d94" xml:space="preserve">  Trip Planner · 2 points</text>
     <text x="900" y="138"><tspan fill="#ffb24a">●</tspan> set_status(in_progress)</text>
-    <text x="900" y="162"><tspan fill="#6fd48b">✓</tspan> Point 1 done</text>
-    <text x="900" y="186"><tspan fill="#6fd48b">✓</tspan> Point 2 done</text>
+    <path d="M900.6 157.8l2.4 2.6 4.6-6" fill="none" stroke="#6fd48b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><text x="914.4" y="162">Point 1 done</text>
+    <path d="M900.6 181.8l2.4 2.6 4.6-6" fill="none" stroke="#6fd48b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><text x="914.4" y="186">Point 2 done</text>
   </g>
 <line x1="418" y1="126" x2="456" y2="126" stroke="rgba(255,180,70,.85)" stroke-width="1.6" stroke-linecap="round"/><path d="M453 121l7 5-7 5" fill="none" stroke="rgba(255,180,70,.85)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><text x="440.0" y="114" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="11" fill="#7a7a83">send</text>
 <line x1="818" y1="126" x2="856" y2="126" stroke="rgba(255,180,70,.85)" stroke-width="1.6" stroke-linecap="round"/><path d="M853 121l7 5-7 5" fill="none" stroke="rgba(255,180,70,.85)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><text x="840.0" y="114" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="11" fill="#7a7a83">deliver</text>
-<text x="74" y="264" font-size="16" font-weight="700" fill="#f2f2f4">1  Point and talk</text><text x="74" y="288" font-size="14" fill="#a9a9b1">Hold ⌥, point at it and say what should change.</text>
+<text x="74" y="264" font-size="16" font-weight="700" fill="#f2f2f4">1  Point and talk</text><text x="74" y="288" font-size="14" fill="#a9a9b1">Hold right ⌥, point at it and say what should change.</text>
 <text x="474" y="264" font-size="16" font-weight="700" fill="#f2f2f4">2  A round</text><text x="474" y="288" font-size="14" fill="#a9a9b1">Numbered points, each with a picture.</text>
 <text x="874" y="264" font-size="16" font-weight="700" fill="#f2f2f4">3  Your session</text><text x="874" y="288" font-size="14" fill="#a9a9b1">Claude Code works through it point by point.</text>
 </svg>
