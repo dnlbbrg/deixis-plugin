@@ -41,6 +41,7 @@ SANS = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui,
 DISPLAY = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, 'Helvetica Neue', Arial, sans-serif"
 MONO = "ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
 
+ICON_PIN = "M165.8 854.2 C232.1 661.3 231.7 565.7 267.2 410.3 A286 286 0 1 1 609.7 752.8 C454.3 788.3 358.7 787.9 165.8 854.2 Z"
 POINTER = "M2 2v22l6-5.6 3.8 8.6 3.4-1.5-3.7-8.4H20z"
 ASSETS = Path(__file__).resolve().parent.parent / "assets"
 
@@ -135,10 +136,6 @@ def css(c):
     k.append(unfade("wait", 70))
     k.append(fade("t2", 72))
     k.append(fade("t3", 82))
-    k.append(keyframes("gring", [
-        ([0, 61], "stroke-dashoffset:1;opacity:1"), ([86, 91], "stroke-dashoffset:0;opacity:1"),
-        ([96, 100], "stroke-dashoffset:0;opacity:0"),
-    ]))
     k.append(keyframes("wave", [([0], "transform:scaleY(.35)"), ([100], "transform:scaleY(1)")]))
 
     rules = f"""
@@ -152,7 +149,6 @@ def css(c):
 #hl1{{animation-name:hl1}} #hl2{{animation-name:hl2}}
 #ok2,#t3{{opacity:0}} #ok1{{animation-name:ok1}} #ok2{{animation-name:ok2}}
 #wait{{animation-name:wait}} #t2{{animation-name:t2}} #t3{{animation-name:t3}}
-#gring{{stroke-dashoffset:.35;animation-name:gring}}
 .wv{{transform-box:fill-box;transform-origin:50% 50%;animation:wave .9s ease-in-out infinite alternate}}
 .wv:nth-child(2){{animation-delay:-.3s}} .wv:nth-child(3){{animation-delay:-.55s}} .wv:nth-child(4){{animation-delay:-.15s}}
 """ + "".join(f"#w{i}{{animation-name:w{i}}}" for i in range(len(LINE1 + LINE2))) + """
@@ -219,7 +215,7 @@ def build(c, mode):
         for i, (a, b) in enumerate(img[:2]))
 
     rows = row(1, 560, words(LINE1, 0, 568, c), 264, c) + row(2, 616, words(LINE2, len(LINE1), 624, c), 240, c)
-    ring = c['pin_ring'] if mode == 'light' else '#111216'
+    edge = '0' if mode == 'light' else '.14'
     s = 24 / 11.5
 
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-labelledby="title desc" font-family="{SANS}">
@@ -236,6 +232,8 @@ def build(c, mode):
   <clipPath id="frame"><rect width="{W}" height="{H}" rx="16"/></clipPath>
   <clipPath id="win"><rect x="40" y="128" width="800" height="296" rx="12"/></clipPath>
   <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="8" fill="{c['amber_soft']}"/></pattern>
+  <linearGradient id="iconbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22335a"/><stop offset="1" stop-color="#0a1120"/></linearGradient>
+  <linearGradient id="iconpin" x1="0.25" y1="0" x2="0.55" y2="1"><stop offset="0" stop-color="#ffb850"/><stop offset="0.55" stop-color="#f49e34"/><stop offset="1" stop-color="#e5831c"/></linearGradient>
   <style>{css(c)}</style>
 </defs>
 <g clip-path="url(#frame)">
@@ -243,10 +241,12 @@ def build(c, mode):
 
   <!-- Brand and tagline: y 40..104 -->
   <g>
-    <circle class="a listen" cx="64" cy="72" r="23" fill="none" stroke="{c['amber']}" stroke-opacity=".45" stroke-width="2"/>
-    <circle id="gring" class="a" cx="64" cy="72" r="23" fill="none" stroke="{c['green']}" stroke-width="2.4" pathLength="1" stroke-dasharray="1" transform="rotate(-90 64 72)"/>
-    <circle cx="64" cy="72" r="15" fill="{c['amber']}"/>
-    <path d="{POINTER}" transform="translate(73 81) translate(-2 -2)" fill="{c['ink']}" stroke="{ring}" stroke-width="1.8" stroke-linejoin="round"/>
+    <!-- The Deixis app icon at 56 px: ink-blue squircle, the pointed orange pin. -->
+    <g transform="translate(36 44) scale(0.0546875)">
+      <rect width="1024" height="1024" rx="230" fill="url(#iconbg)"/>
+      <path d="{ICON_PIN}" fill="url(#iconpin)"/>
+      <rect x="9" y="9" width="1006" height="1006" rx="222" fill="none" stroke="#ffffff" stroke-opacity="{edge}" stroke-width="18"/>
+    </g>
   </g>
   <text x="104" y="90" font-family="{DISPLAY}" font-size="48" font-weight="700" letter-spacing="-1" fill="{c['ink']}">Deixis</text>
   <text x="840" y="88" text-anchor="end" font-family="{DISPLAY}" font-size="32" font-weight="650" letter-spacing="-.4" fill="{c['ink']}">Show it, don’t describe it.</text>
