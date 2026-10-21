@@ -1,9 +1,14 @@
 {
   "name": "deixis",
   "version": "0.1.0",
-  "description": "Spoken and pointed UI feedback from the Deixis Mac app, delivered as numbered points in review rounds. Tools to fetch rounds, watch for new ones and report back per point.",
+  "description": "Screenshot feedback for anyone, delivered as review rounds. Point at the screen and speak, and Claude Code receives numbered points with a screenshot each, can watch for new rounds and report back per point.",
   "author": {
-    "name": "Daniel Boberg"
+    "name": "Daniel Boberg",
+    "email": "post@danielboberg.de",
+    "url": "https://deixis.folnaro.app"
   },
-  "keywords": ["feedback", "review", "screenshots", "mcp"]
+  "homepage": "https://deixis.folnaro.app",
+  "repository": "https://github.com/dnlbbrg/deixis-plugin",
+  "license": "MIT",
+  "keywords": ["feedback", "screenshot", "annotation", "review", "design-review", "mcp", "macos"]
 }

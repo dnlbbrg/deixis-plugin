@@ -1,16 +1,30 @@
 {
   "name": "deixis",
   "owner": {
-    "name": "Daniel Boberg"
+    "name": "Daniel Boberg",
+    "email": "post@danielboberg.de",
+    "url": "https://deixis.folnaro.app"
   },
   "metadata": {
-    "description": "Claude Code plugin for the Deixis Mac app"
+    "description": "Claude Code plugin for Deixis, the Mac app for screenshot feedback delivered as review rounds",
+    "version": "0.1.0"
   },
   "plugins": [
     {
       "name": "deixis",
       "source": "./plugin",
-      "description": "Spoken and pointed UI feedback from Deixis as review rounds: MCP tools, session hooks and /deixis-watch."
+      "description": "Screenshot feedback for anyone, delivered as review rounds. Point at the screen and speak, and Claude Code receives numbered points with a screenshot each, can watch for new rounds and report back per point.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Daniel Boberg",
+        "email": "post@danielboberg.de",
+        "url": "https://deixis.folnaro.app"
+      },
+      "homepage": "https://deixis.folnaro.app",
+      "repository": "https://github.com/dnlbbrg/deixis-plugin",
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": ["feedback", "screenshot", "annotation", "review", "design-review", "mcp", "macos"]
     }
   ]
 }

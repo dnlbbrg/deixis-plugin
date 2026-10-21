@@ -46,7 +46,7 @@ body:
     id: deixis-version
     attributes:
       label: Deixis version
-      description: Shown in Deixis under About Deixis.
+      description: In Finder, select Deixis.app in Applications and choose File > Get Info.
   - type: input
     id: claude-code-version
     attributes:
