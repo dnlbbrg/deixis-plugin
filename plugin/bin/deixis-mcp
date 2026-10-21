@@ -1,0 +1,46 @@
+#!/bin/bash
+# Launcher for the Deixis MCP helper. Claude Code runs it for the MCP server entry and for the hooks.
+#   deixis-mcp                 serves MCP over stdio
+#   deixis-mcp hook <event>    handles a Claude Code hook (session-start, session-end, prompt-submit)
+# The helper lives inside the app: /Applications first, then ~/Applications, then wherever Spotlight finds the bundle.
+# `exec` keeps the helper a direct child of Claude Code, which is how it learns its session.
+
+# Only /Applications needs admin rights to write to. A bundle anywhere else runs only if it is validly signed by the
+# Deixis team, so a planted app with the same bundle id is never executed.
+TEAM_ID="AY9VQ7X6DM"
+
+signed_by_team() {
+  codesign --verify --strict "$1" 2>/dev/null &&
+    codesign -dv "$1" 2>&1 | grep -qx "TeamIdentifier=$TEAM_ID"
+}
+
+find_helper() {
+  local app
+  if [ -x "/Applications/Deixis.app/Contents/MacOS/deixis-mcp" ]; then
+    printf '%s\n' "/Applications/Deixis.app/Contents/MacOS/deixis-mcp"
+    return 0
+  fi
+  app="$HOME/Applications/Deixis.app"
+  if [ -x "$app/Contents/MacOS/deixis-mcp" ] && signed_by_team "$app"; then
+    printf '%s\n' "$app/Contents/MacOS/deixis-mcp"
+    return 0
+  fi
+  # Spotlight can hang (indexing, restricted sessions): give it three seconds.
+  app="$(perl -e 'alarm 3; exec @ARGV' mdfind 'kMDItemCFBundleIdentifier == "app.deixis.mac"' 2>/dev/null | head -n 1)"
+  if [ -n "$app" ] && [ -x "$app/Contents/MacOS/deixis-mcp" ] && signed_by_team "$app"; then
+    printf '%s\n' "$app/Contents/MacOS/deixis-mcp"
+    return 0
+  fi
+  return 1
+}
+
+if ! helper="$(find_helper)"; then
+  # Hooks stay silent so Claude Code works as before; the MCP entry says why it cannot start.
+  if [ "${1:-}" = "hook" ]; then
+    exit 0
+  fi
+  echo "deixis: Deixis.app was not found in /Applications, ~/Applications or Spotlight. Install the app, then restart Claude Code." >&2
+  exit 1
+fi
+
+exec "$helper" "$@"

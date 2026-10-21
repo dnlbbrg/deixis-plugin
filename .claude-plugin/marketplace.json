@@ -1,0 +1,16 @@
+{
+  "name": "deixis",
+  "owner": {
+    "name": "Daniel Boberg"
+  },
+  "metadata": {
+    "description": "Claude Code plugin for the Deixis Mac app"
+  },
+  "plugins": [
+    {
+      "name": "deixis",
+      "source": "./plugin",
+      "description": "Spoken and pointed UI feedback from Deixis as review rounds: MCP tools, session hooks and /deixis-watch."
+    }
+  ]
+}

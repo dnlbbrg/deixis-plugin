@@ -1,0 +1,9 @@
+{
+  "name": "deixis",
+  "version": "0.1.0",
+  "description": "Spoken and pointed UI feedback from the Deixis Mac app, delivered as numbered points in review rounds. Tools to fetch rounds, watch for new ones and report back per point.",
+  "author": {
+    "name": "Daniel Boberg"
+  },
+  "keywords": ["feedback", "review", "screenshots", "mcp"]
+}

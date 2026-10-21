@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "deixis": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/deixis-mcp",
+      "args": []
+    }
+  }
+}
