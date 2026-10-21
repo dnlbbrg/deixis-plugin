@@ -1,9 +1,11 @@
 #!/bin/bash
-# Usage: tools/preview.sh <outdir> [height]   (renders README.md through the GitHub markdown API, screenshots light and dark)
+# Usage: tools/preview.sh <outdir> [height] [width]   (renders README.md through the GitHub markdown API, screenshots light and dark)
+# The default width 1280 gives GitHub's 830 px markdown column; a width below 768 (for example 390) mimics a phone.
 set -e
 root="$(cd "$(dirname "$0")/.." && pwd)"
 P="${1:?outdir required}"
 H="${2:-2600}"
+WD="${3:-1280}"
 chrome="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
 mkdir -p "$P/assets"
 cp "$root"/assets/*.svg "$P/assets/"
@@ -12,14 +14,17 @@ gh api markdown -f mode=gfm -f context=dnlbbrg/deixis-plugin -f text="$(cat "$ro
   printf '<!doctype html><html><head><meta charset="utf-8"><meta name="color-scheme" content="light dark">'
   printf '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown.min.css">'
   printf '<style>body{margin:0;background:#fff}@media (prefers-color-scheme:dark){body{background:#0d1117}}'
-  printf '.markdown-body{box-sizing:border-box;max-width:1012px;margin:0 auto;padding:32px 45px}</style></head>'
+  printf '.markdown-body{box-sizing:border-box;max-width:920px;margin:0 auto;padding:32px 45px}'
+  # Headless Chrome keeps a minimum window width, so a phone width is enforced on the page itself.
+  [ "$WD" -lt 768 ] && printf 'html{width:%spx;overflow:hidden}.markdown-body{padding:16px}' "$WD"
+  printf '</style></head>'
   printf '<body><article class="markdown-body">'
   cat "$P/body.html"
   printf '</article></body></html>'
 } > "$P/index.html"
 "$chrome" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --user-data-dir="$P/.chrome-light" \
-  --virtual-time-budget=6000 --window-size=1280,"$H" --screenshot="$P/readme-light.png" "file://$P/index.html" >/dev/null 2>&1
+  --virtual-time-budget=6000 --window-size="$WD","$H" --screenshot="$P/readme-light.png" "file://$P/index.html" >/dev/null 2>&1
 "$chrome" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --user-data-dir="$P/.chrome-dark" \
   --force-dark-mode --blink-settings=preferredColorScheme=0 \
-  --virtual-time-budget=6000 --window-size=1280,"$H" --screenshot="$P/readme-dark.png" "file://$P/index.html" >/dev/null 2>&1
+  --virtual-time-budget=6000 --window-size="$WD","$H" --screenshot="$P/readme-dark.png" "file://$P/index.html" >/dev/null 2>&1
 echo "$P/readme-light.png $P/readme-dark.png"

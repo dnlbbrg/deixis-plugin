@@ -1,15 +1,15 @@
 # Usage: python3 tools/flow.py   (writes assets/flow-{1,2,3}-{light,dark}.svg)
 """Generates the three step images of the README: point and talk, a round, your Claude Code session.
 
-Each image is 560 x 288 on an 8 px grid with a 32 px outer margin. The README shows them at 560 px, so text is at
-least 20 px on a desktop and still about 12 px on a 360 px wide phone.
+Each image is 880 x 384 on an 8 px grid with a 32 px outer margin. The README shows them across the full 830 px column,
+so the smallest text (28 px) reads at about 26 px on a desktop and still about 11 px on a 360 px wide phone.
 """
 import sys
 from pathlib import Path
 
 from banner import ASSETS, LIGHT, DARK, SANS, DISPLAY, MONO, POINTER, check, spark
 
-W, H = 560, 288
+W, H = 880, 384
 
 
 def frame(c, title, desc, body, extra_defs=""):
@@ -35,27 +35,27 @@ def glass(x, y, w, h, c, rx=16):
 
 
 def badge(cx, cy, n, c):
-    return (f'<circle cx="{cx}" cy="{cy}" r="15" fill="{c["pin"]}"/>'
-            f'<text x="{cx}" y="{cy + 7}" text-anchor="middle" font-size="20" font-weight="800" fill="{c["pin_ink"]}">{n}</text>')
+    return (f'<circle cx="{cx}" cy="{cy}" r="22" fill="{c["pin"]}"/>'
+            f'<text x="{cx}" y="{cy + 10}" text-anchor="middle" font-size="28" font-weight="800" fill="{c["pin_ink"]}">{n}</text>')
 
 
 def step1(c):
     """A page with a pin on a button and the spoken line."""
     body = f"""
-<g filter="url(#sh)"><rect x="32" y="32" width="496" height="136" rx="12" fill="{c['oc_bg']}"/></g>
-<rect x="32.5" y="32.5" width="495" height="135" rx="11.5" fill="none" stroke="{c['oc_line']}"/>
-<text x="56" y="88" font-family="{DISPLAY}" font-size="32" font-weight="700" letter-spacing="-.5" fill="{c['oc_ink']}">Lisbon</text>
-<text x="56" y="128" font-size="20" fill="{c['oc_ink2']}">4 nights · 2 guests</text>
-<rect x="404" y="92" width="104" height="48" rx="12" fill="{c['amber_soft']}" stroke="{c['amber_line']}" stroke-width="1.6"/>
-<rect x="408" y="96" width="96" height="40" rx="9" fill="{c['oc_brand']}"/>
-<text x="456" y="123" text-anchor="middle" font-size="20" font-weight="650" fill="{c['oc_bg']}">Book</text>
-<rect x="454.5" y="80" width="3" height="16" rx="1.2" fill="{c['pin']}"/>
-<circle cx="456" cy="64" r="16" fill="{c['pin']}" stroke="{c['pin_ring']}" stroke-width="2.4" filter="url(#shs)"/>
-<text x="456" y="71" text-anchor="middle" font-size="20" font-weight="800" fill="{c['pin_ink']}">1</text>
-<path d="{POINTER}" transform="translate(488 126) scale(1.2) translate(-2 -2)" fill="#111" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" filter="url(#shs)"/>
-{glass(32, 192, 496, 64, c)}
-{badge(64, 224, 1, c)}
-<text x="96" y="232" font-size="22" fill="{c['ink']}"><tspan font-weight="700" fill="{c['amber_ink']}">This</tspan> button is too small.</text>"""
+<g filter="url(#sh)"><rect x="32" y="32" width="816" height="192" rx="16" fill="{c['oc_bg']}"/></g>
+<rect x="32.5" y="32.5" width="815" height="191" rx="15.5" fill="none" stroke="{c['oc_line']}"/>
+<text x="64" y="120" font-family="{DISPLAY}" font-size="52" font-weight="700" letter-spacing="-.8" fill="{c['oc_ink']}">Lisbon</text>
+<text x="64" y="176" font-size="30" fill="{c['oc_ink2']}">4 nights · 2 guests</text>
+<rect x="632" y="112" width="176" height="80" rx="18" fill="{c['amber_soft']}" stroke="{c['amber_line']}" stroke-width="2"/>
+<rect x="640" y="120" width="160" height="64" rx="12" fill="{c['oc_brand']}"/>
+<text x="720" y="163" text-anchor="middle" font-size="30" font-weight="650" fill="{c['oc_bg']}">Book</text>
+<rect x="717.5" y="92" width="5" height="32" rx="2" fill="{c['pin']}"/>
+<circle cx="720" cy="72" r="24" fill="{c['pin']}" stroke="{c['pin_ring']}" stroke-width="3" filter="url(#shs)"/>
+<text x="720" y="82" text-anchor="middle" font-size="28" font-weight="800" fill="{c['pin_ink']}">1</text>
+<path d="{POINTER}" transform="translate(768 160) scale(1.6) translate(-2 -2)" fill="#111" stroke="#fff" stroke-width="1.3" stroke-linejoin="round" filter="url(#shs)"/>
+{glass(32, 256, 816, 96, c)}
+{badge(80, 304, 1, c)}
+<text x="128" y="315" font-size="32" fill="{c['ink']}"><tspan font-weight="700" fill="{c['amber_ink']}">This</tspan> button is too small.</text>"""
     return frame(c, "Step 1: point and talk",
                  "A pin with the number 1 drops on the Book button of a Trip Planner page while you say: this button is too small.",
                  body)
@@ -64,21 +64,21 @@ def step1(c):
 def step2(c):
     """The round: two numbered points, each with a picture."""
     rows = ""
-    for i, (txt, img) in enumerate((("Button too small", c["img"][0]), ("Gap too big", c["img"][1]))):
-        y = 112 + i * 72
+    for i, txt in enumerate(("Button too small", "Gap too big")):
+        y = 136 + i * 104
         rows += f"""
-<rect x="56" y="{y}" width="88" height="56" rx="8" fill="url(#img{i})"/>
-<rect x="56.5" y="{y + .5}" width="87" height="55" rx="7.5" fill="none" stroke="{c['oc_line']}"/>
-{badge(176, y + 28, i + 1, c)}
-<text x="208" y="{y + 36}" font-size="22" fill="{c['ink']}">{txt}</text>"""
+<rect x="64" y="{y}" width="136" height="88" rx="10" fill="url(#img{i})"/>
+<rect x="64.5" y="{y + .5}" width="135" height="87" rx="9.5" fill="none" stroke="{c['oc_line']}"/>
+{badge(248, y + 44, i + 1, c)}
+<text x="288" y="{y + 55}" font-size="32" fill="{c['ink']}">{txt}</text>"""
     grads = "".join(
         f'\n  <linearGradient id="img{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{a}"/><stop offset="1" stop-color="{b}"/></linearGradient>'
         for i, (a, b) in enumerate(c["img"][:2]))
     body = f"""
-{glass(32, 32, 496, 224, c)}
-<text x="56" y="72" font-size="20" fill="{c['ink2']}"><tspan font-weight="700" fill="{c['ink']}">Trip Planner</tspan> · Oct 21</text>
-<text x="504" y="72" text-anchor="end" font-size="20" fill="{c['ink3']}">2 points</text>
-<rect x="32" y="95.5" width="496" height="1" fill="{c['line']}"/>{rows}"""
+{glass(32, 32, 816, 320, c)}
+<text x="64" y="84" font-size="28" fill="{c['ink2']}"><tspan font-weight="700" fill="{c['ink']}">Trip Planner</tspan> · Oct 21</text>
+<text x="816" y="84" text-anchor="end" font-size="28" fill="{c['ink3']}">2 points</text>
+<rect x="32" y="111.5" width="816" height="1" fill="{c['line']}"/>{rows}"""
     return frame(c, "Step 2: a round",
                  "The Trip Planner round of Oct 21 holds two numbered points, each with a picture: button too small, gap too big.",
                  body, grads)
@@ -86,18 +86,18 @@ def step2(c):
 
 def step3(c):
     """The Claude Code session working through the round."""
-    s = 20 / 11.5
+    s = 28 / 11.5
     body = f"""
-<g filter="url(#sh)"><rect x="32" y="32" width="496" height="224" rx="12" fill="{c['term']}"/></g>
-<rect x="32" y="71.5" width="496" height="1" fill="#ffffff" fill-opacity=".1"/>
-<circle cx="56" cy="52" r="6" fill="#ffffff" fill-opacity=".18"/><circle cx="76" cy="52" r="6" fill="#ffffff" fill-opacity=".18"/><circle cx="96" cy="52" r="6" fill="#ffffff" fill-opacity=".18"/>
-<g font-family="{MONO}" font-size="20" fill="{c['term_ink']}">
-  {spark(120, 59, "#ffb24a", s)}<text x="144" y="59">Claude Code</text>
-  <text x="56" y="112" fill="{c['term_dim']}">&gt; /deixis-watch</text>
-  <text x="56" y="140"><tspan fill="#ffb24a">●</tspan> watch_rounds()</text>
-  <text x="56" y="168" xml:space="preserve" fill="{c['term_dim']}">  Trip Planner · 2 points</text>
-  {check(56, 196, "#6fd48b", s)}<text x="80" y="196">Point 1 done</text>
-  {check(56, 224, "#6fd48b", s)}<text x="80" y="224">Point 2 done</text>
+<g filter="url(#sh)"><rect x="32" y="32" width="816" height="320" rx="16" fill="{c['term']}"/></g>
+<rect x="32" y="87.5" width="816" height="1" fill="#ffffff" fill-opacity=".1"/>
+<circle cx="64" cy="60" r="8" fill="#ffffff" fill-opacity=".18"/><circle cx="88" cy="60" r="8" fill="#ffffff" fill-opacity=".18"/><circle cx="112" cy="60" r="8" fill="#ffffff" fill-opacity=".18"/>
+<g font-family="{MONO}" font-size="28" fill="{c['term_ink']}">
+  {spark(144, 70, "#ffb24a", s)}<text x="176" y="70">Claude Code</text>
+  <text x="64" y="136" fill="{c['term_dim']}">&gt; /deixis-watch</text>
+  <text x="64" y="180"><tspan fill="#ffb24a">●</tspan> watch_rounds()</text>
+  <text x="64" y="224" xml:space="preserve" fill="{c['term_dim']}">  Trip Planner · 2 points</text>
+  {check(64, 268, "#6fd48b", s)}<text x="100" y="268">Point 1 done</text>
+  {check(64, 312, "#6fd48b", s)}<text x="100" y="312">Point 2 done</text>
 </g>"""
     return frame(c, "Step 3: your Claude Code session",
                  "Claude Code receives the round through watch_rounds and marks point 1 and point 2 done.",

@@ -61,14 +61,22 @@ def spark(x, y, color, s=1.0):
 
 EASE = "cubic-bezier(.45,0,.2,1)"
 
-# Cursor positions (tip): rest, target 1 (top edge of the Book button), target 2 (the wide gap between trip cards).
-# Canvas: 880 x 520, laid out on an 8 px grid with a 40 px outer margin, so it reads at GitHub's 830 px column.
-W, H, M = 880, 520, 40
-REST, T1, T2 = (304, 312), (464, 266), (208, 432)
+# Canvas: 880 x 568 on an 8 px grid with a 40 px outer margin. Few, large elements: the smallest text is 20 px, so it
+# stays legible in GitHub's 830 px column and as far as possible on a 360 px wide phone.
+# The base styles are the composed still frame (reduced motion). The animated loop starts from a complete scene:
+# window, card and session are always there, the animation only adds pins, words and results and takes them back at the end.
+W, H, M = 880, 568, 40
+
+# Cursor positions (tip): rest, target 1 (just inside the top edge of the Book button), target 2 (the wide gap between the cards).
+REST, T1, T2 = (280, 240), (384, 236), (252, 392)
 
 # Words of the two spoken lines and the loop percentage at which each appears.
 LINE1 = [("This", 19.0, True), ("button", 21.0, False), ("is", 22.6, False), ("too", 24.0, False), ("small.", 25.6, False)]
 LINE2 = [("Here", 41.0, True), ("the", 43.0, False), ("gap", 44.4, False), ("is", 46.0, False), ("too", 47.4, False), ("big.", 49.0, False)]
+
+# Everything the loop adds is taken back between OUT and BACK; what it replaced returns between BACK and HOME,
+# so nothing ever overlaps and the frame at 100% equals the frame at 0%.
+OUT, BACK, HOME = 94.0, 97.0, 99.5
 
 
 def keyframes(name, frames):
@@ -82,11 +90,14 @@ def keyframes(name, frames):
     return "".join(out)
 
 
-def fade(name, on, off=None, prop="opacity", dur=1.2):
-    """Visible from `on` (fading in over `dur` percent) until `off` (fading out), else hidden."""
-    if off is None:
-        return keyframes(name, [([0, on], f"{prop}:0"), ([on + dur, 100], f"{prop}:1")])
-    return keyframes(name, [([0, on], f"{prop}:0"), ([on + dur, off], f"{prop}:1"), ([off + 3, 100], f"{prop}:0")])
+def fade(name, on, prop="opacity", dur=1.2):
+    """Hidden until `on`, fades in over `dur` percent, fades out between OUT and BACK."""
+    return keyframes(name, [([0, on], f"{prop}:0"), ([on + dur, OUT], f"{prop}:1"), ([BACK, 100], f"{prop}:0")])
+
+
+def unfade(name, off, dur=1.2):
+    """The opposite of fade: visible from the start, gone at `off`, back between BACK and HOME."""
+    return keyframes(name, [([0, off], "opacity:1"), ([off + dur, BACK], "opacity:0"), ([HOME, 100], "opacity:1")])
 
 
 def css(c):
@@ -96,37 +107,33 @@ def css(c):
         ([0, 6], t(REST), EASE), ([18, 30], t(T1), EASE), ([40, 56], t(T2), EASE), ([68, 100], t(REST)),
     ]))
     k.append(keyframes("listen", [([0, 5], "opacity:0"), ([9, 54], "opacity:1"), ([60, 100], "opacity:0")]))
-    k.append(keyframes("card", [
-        ([0, 7], "opacity:0;transform:translateY(8px) scale(.97)", "cubic-bezier(.16,1,.3,1)"),
-        ([11, 56], "opacity:1;transform:none"), ([61, 100], "opacity:0;transform:translateY(-6px)"),
-    ]))
-    k.append(keyframes("c0", [([0, 21.6], "opacity:1"), ([22.6, 100], "opacity:0")]))
+    k.append(unfade("c0", 21.6, dur=1.0))
     k.append(keyframes("c1", [([0, 21.6], "opacity:0"), ([22.6, 43.6], "opacity:1"), ([44.6, 100], "opacity:0")]))
-    k.append(keyframes("c2", [([0, 43.6], "opacity:0"), ([44.6, 100], "opacity:1")]))
+    k.append(keyframes("c2", [([0, 43.6], "opacity:0"), ([44.6, OUT], "opacity:1"), ([BACK, 100], "opacity:0")]))
     for i, (_, p, _) in enumerate(LINE1 + LINE2):
         k.append(fade(f"w{i}", p, prop="fill-opacity", dur=1.0))
     for i, p in ((1, 19.0), (2, 41.0)):
         k.append(fade(f"b{i}", p, dur=0.8))
-        k.append(keyframes(f"th{i}", [
-            ([0, p], "stroke-dashoffset:1;opacity:1"), ([p + 2.75], "stroke-dashoffset:0;opacity:1"),
-            ([56], "stroke-dashoffset:0;opacity:1"), ([60, 100], "stroke-dashoffset:0;opacity:0"),
-        ]))
+        k.append(unfade(f"ph{i}", p - 0.6, dur=0.6))
     for i, p in ((1, 22.0), (2, 44.0)):
+        # The pin stays fully opaque while it is on screen: it drops in and leaves by shrinking into its tip.
+        hidden = "opacity:0;transform:translateY(-14px) scale(.4)"
         k.append(keyframes(f"pin{i}", [
-            ([0, p], "opacity:0;transform:translateY(-14px) scale(.4)", "cubic-bezier(.3,1.5,.5,1)"),
-            ([p + 2.4, 91], "opacity:1;transform:none"),
-            ([96, 100], "opacity:0;transform:scale(.6)"),
+            ([0, p], hidden, "cubic-bezier(.3,1.5,.5,1)"),
+            ([p + 2.4, OUT], "opacity:1;transform:none", "cubic-bezier(.5,0,.75,0)"),
+            ([BACK - .1], "opacity:1;transform:scale(0)"),
+            ([BACK, 100], hidden),
         ]))
         k.append(keyframes(f"rip{i}", [
             ([0, p + 0.6], "opacity:0;transform:scale(.3)"), ([p + 1.2], "opacity:.9;transform:scale(.5)"),
             ([p + 5.5, 100], "opacity:0;transform:scale(1.6)"),
         ]))
-        k.append(fade(f"hl{i}", p + 0.4, 90))
-    k.append(fade("ok1", 72, 91, dur=1.5))
-    k.append(fade("ok2", 82, 91, dur=1.5))
-    k.append(fade("t1", 62, 94))
-    k.append(fade("t2", 72, 94))
-    k.append(fade("t3", 82, 94))
+        k.append(fade(f"hl{i}", p + 0.4))
+    for name, p in (("ok1", 72), ("ok2", 82)):
+        k.append(keyframes(name, [([0, p], "opacity:0"), ([p + 1.5, BACK - .1], "opacity:1"), ([BACK, 100], "opacity:0")]))
+    k.append(unfade("wait", 70))
+    k.append(fade("t2", 72))
+    k.append(fade("t3", 82))
     k.append(keyframes("gring", [
         ([0, 61], "stroke-dashoffset:1;opacity:1"), ([86, 91], "stroke-dashoffset:0;opacity:1"),
         ([96, 100], "stroke-dashoffset:0;opacity:0"),
@@ -137,15 +144,13 @@ def css(c):
 .a{{animation-duration:8s;animation-iteration-count:infinite;animation-timing-function:linear;animation-fill-mode:both}}
 #cur{{transform:translate({T2[0]}px,{T2[1]}px);animation-name:cur}}
 .listen{{opacity:0;animation-name:listen}}
-#card{{animation-name:card;transform-box:fill-box;transform-origin:50% 0}}
-#c0,#c1{{opacity:0}} #c0{{animation-name:c0}} #c1{{animation-name:c1}} #c2{{animation-name:c2}}
-#b1{{animation-name:b1}} #b2{{animation-name:b2}}
-#th1{{animation-name:th1}} #th2{{animation-name:th2}}
+#c0,#c1,#ph1,#ph2,#wait{{opacity:0}} #c0{{animation-name:c0}} #c1{{animation-name:c1}} #c2{{animation-name:c2}}
+#ph1{{animation-name:ph1}} #ph2{{animation-name:ph2}} #b1{{animation-name:b1}} #b2{{animation-name:b2}}
 #pin1{{animation-name:pin1}} #pin2{{animation-name:pin2}}
 #rip1,#rip2{{opacity:0;transform-box:fill-box;transform-origin:50% 50%}} #rip1{{animation-name:rip1}} #rip2{{animation-name:rip2}}
 #hl1{{animation-name:hl1}} #hl2{{animation-name:hl2}}
 #ok2,#t3{{opacity:0}} #ok1{{animation-name:ok1}} #ok2{{animation-name:ok2}}
-#t1{{animation-name:t1}} #t2{{animation-name:t2}} #t3{{animation-name:t3}}
+#wait{{animation-name:wait}} #t2{{animation-name:t2}} #t3{{animation-name:t3}}
 #gring{{stroke-dashoffset:.35;animation-name:gring}}
 .wv{{transform-box:fill-box;transform-origin:50% 50%;animation:wave .9s ease-in-out infinite alternate}}
 .wv:nth-child(2){{animation-delay:-.3s}} .wv:nth-child(3){{animation-delay:-.55s}} .wv:nth-child(4){{animation-delay:-.15s}}
@@ -162,49 +167,60 @@ def words(line, start, y, c):
         style = f' fill="{c["amber_ink"]}" font-weight="700"' if deictic else ""
         sep = " " if j else ""
         parts.append(f'<tspan id="w{i}" class="a"{style}>{sep}{w}</tspan>')
-    return f'<text x="592" y="{y}" font-size="16" fill="{c["ink"]}" xml:space="preserve">{"".join(parts)}</text>'
+    return f'<text x="548" y="{y}" font-size="20" fill="{c["ink"]}" xml:space="preserve">{"".join(parts)}</text>'
 
 
 def pin(n, x, y, c):
     return f"""
   <g transform="translate({x} {y})">
-    <circle id="rip{n}" class="a" cx="0" cy="-4" r="20" fill="none" stroke="{c['amber']}" stroke-width="2"/>
+    <circle id="rip{n}" class="a" cx="0" cy="-4" r="22" fill="none" stroke="{c['amber']}" stroke-width="2"/>
     <g id="pin{n}" class="a">
-      <rect x="-1.5" y="-14" width="3" height="14" rx="1.2" fill="{c['pin']}"/>
-      <circle cx="0" cy="-28" r="14" fill="{c['pin']}" stroke="{c['pin_ring']}" stroke-width="2.4" filter="url(#shs)"/>
-      <text x="0" y="-22.6" text-anchor="middle" font-size="15" font-weight="800" fill="{c['pin_ink']}">{n}</text>
+      <rect x="-2" y="-16" width="4" height="16" rx="1.5" fill="{c['pin']}"/>
+      <circle cx="0" cy="-32" r="18" fill="{c['pin']}" stroke="{c['pin_ring']}" stroke-width="2.4" filter="url(#shs)"/>
+      <text x="0" y="-24.4" text-anchor="middle" font-size="22" font-weight="800" fill="{c['pin_ink']}">{n}</text>
       <g id="ok{n}" class="a">
-        <circle cx="0" cy="-28" r="14" fill="{c['green']}" stroke="{c['pin_ring']}" stroke-width="2.4"/>
-        <path d="M-6 -28l4 4 7.6-8.4" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="0" cy="-32" r="18" fill="{c['green']}" stroke="{c['pin_ring']}" stroke-width="2.4"/>
+        <path d="M-7.6 -32l5 5 9.6-10.4" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
       </g>
     </g>
   </g>"""
 
 
+def row(n, cy, words_svg, bar, c):
+    """One spoken point in the card: a placeholder (outlined number, grey bar) until the words arrive."""
+    return f"""
+    <g id="ph{n}" class="a">
+      <circle cx="520" cy="{cy}" r="13" fill="none" stroke="{c['ink3']}" stroke-opacity=".6" stroke-width="2"/>
+      <text x="520" y="{cy + 7}" text-anchor="middle" font-size="20" font-weight="700" fill="{c['ink3']}">{n}</text>
+      <rect x="548" y="{cy - 5}" width="{bar}" height="10" rx="5" fill="{c['ink3']}" fill-opacity=".28"/>
+    </g>
+    <g id="b{n}" class="a"><circle cx="520" cy="{cy}" r="14" fill="{c['pin']}"/><text x="520" y="{cy + 7}" text-anchor="middle" font-size="20" font-weight="800" fill="{c['pin_ink']}">{n}</text></g>
+    {words_svg}"""
+
+
 def build(c, mode):
     img = c["img"]
-    # Trip Planner window: x 40..520, y 160..480. Cards 112 wide, the first gap (64) is the one that is too big.
+    # Trip Planner window: x 40..464, y 136..528. Two cards 144 wide; the 88 px gap between them is the one that is too big.
     cards = []
-    for i, (title, x) in enumerate((("Alfama", 64), ("Belém", 240), ("Sintra", 384))):
-        g = img[i]
+    for i, (title, x) in enumerate((("Alfama", 64), ("Belém", 296))):
         cards.append(f"""
     <g>
-      <rect x="{x}" y="336" width="112" height="120" rx="10" fill="{c['oc_card']}" stroke="{c['oc_line']}"/>
-      <path d="M{x} 346a10 10 0 0 1 10-10h92a10 10 0 0 1 10 10v54h-112z" fill="url(#img{i})"/>
-      <text x="{x + 12}" y="424" font-size="15" font-weight="650" fill="{c['oc_ink']}">{title}</text>
-      <rect x="{x + 12}" y="436" width="{64 - i * 8}" height="6" rx="3" fill="{c['oc_line']}"/>
+      <rect x="{x}" y="312" width="144" height="192" rx="12" fill="{c['oc_card']}" stroke="{c['oc_line']}"/>
+      <path d="M{x} 324a12 12 0 0 1 12-12h120a12 12 0 0 1 12 12v84h-144z" fill="url(#img{i})"/>
+      <text x="{x + 16}" y="448" font-size="22" font-weight="650" fill="{c['oc_ink']}">{title}</text>
+      <rect x="{x + 16}" y="464" width="{80 - i * 16}" height="8" rx="4" fill="{c['oc_line']}"/>
     </g>""")
     grads = "".join(
         f'<linearGradient id="img{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{a}"/><stop offset="1" stop-color="{b}"/></linearGradient>'
-        for i, (a, b) in enumerate(img))
+        for i, (a, b) in enumerate(img[:2]))
 
-    l1 = words(LINE1, 0, 242, c)
-    l2 = words(LINE2, len(LINE1), 274, c)
+    rows = row(1, 233, words(LINE1, 0, 240, c), 216, c) + row(2, 273, words(LINE2, len(LINE1), 280, c), 192, c)
     ring = c['pin_ring'] if mode == 'light' else '#111216'
+    s = 20 / 11.5
 
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-labelledby="title desc" font-family="{SANS}">
 <title id="title">Deixis plugin for Claude Code</title>
-<desc id="desc">Show it, don't describe it. A pointer moves over a Trip Planner page, two numbered pins drop while a spoken line appears in a small glass card, and the round arrives in a Claude Code session where both points are marked done.</desc>
+<desc id="desc">Show it, don't describe it. A pointer moves over a Trip Planner page, two numbered pins drop while the spoken line appears in a glass card, and the round arrives in a Claude Code session where both points are marked done.</desc>
 <defs>
   <linearGradient id="wall" x1="0" y1="0" x2="1" y2="1">
     <stop offset="0" stop-color="{c['wall'][0]}"/><stop offset=".52" stop-color="{c['wall'][1]}"/><stop offset="1" stop-color="{c['wall'][2]}"/>
@@ -214,112 +230,85 @@ def build(c, mode):
   <filter id="shs" x="-60%" y="-60%" width="220%" height="240%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000" flood-opacity=".3"/></filter>
   <filter id="glow" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="10"/></filter>
   <clipPath id="frame"><rect width="{W}" height="{H}" rx="16"/></clipPath>
-  <clipPath id="win"><rect x="40" y="160" width="480" height="320" rx="12"/></clipPath>
-  <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="6" fill="{c['amber_soft']}"/></pattern>
+  <clipPath id="win"><rect x="40" y="136" width="424" height="392" rx="12"/></clipPath>
+  <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="8" fill="{c['amber_soft']}"/></pattern>
   <style>{css(c)}</style>
 </defs>
 <g clip-path="url(#frame)">
   <rect width="{W}" height="{H}" fill="url(#wall)"/>
 
-  <!-- Brand: y 40..128 -->
-  <text x="40" y="56" font-family="{MONO}" font-size="14" font-weight="600" letter-spacing="2.4" fill="{c['amber_ink']}">CLAUDE CODE PLUGIN</text>
+  <!-- Brand and tagline: y 40..104 -->
   <g>
-    <circle class="a listen" cx="64" cy="104" r="23" fill="none" stroke="{c['amber']}" stroke-opacity=".45" stroke-width="2"/>
-    <circle id="gring" class="a" cx="64" cy="104" r="23" fill="none" stroke="{c['green']}" stroke-width="2.4" pathLength="1" stroke-dasharray="1" transform="rotate(-90 64 104)"/>
-    <circle cx="64" cy="104" r="15" fill="{c['amber']}"/>
-    <path d="{POINTER}" transform="translate(73 113) scale(1) translate(-2 -2)" fill="{c['ink']}" stroke="{ring}" stroke-width="1.8" stroke-linejoin="round"/>
+    <circle class="a listen" cx="64" cy="72" r="23" fill="none" stroke="{c['amber']}" stroke-opacity=".45" stroke-width="2"/>
+    <circle id="gring" class="a" cx="64" cy="72" r="23" fill="none" stroke="{c['green']}" stroke-width="2.4" pathLength="1" stroke-dasharray="1" transform="rotate(-90 64 72)"/>
+    <circle cx="64" cy="72" r="15" fill="{c['amber']}"/>
+    <path d="{POINTER}" transform="translate(73 81) translate(-2 -2)" fill="{c['ink']}" stroke="{ring}" stroke-width="1.8" stroke-linejoin="round"/>
   </g>
-  <text x="104" y="120" font-family="{DISPLAY}" font-size="44" font-weight="700" letter-spacing="-.9" fill="{c['ink']}">Deixis</text>
-  <text x="840" y="120" text-anchor="end" font-family="{DISPLAY}" font-size="26" font-weight="650" letter-spacing="-.3" fill="{c['ink']}">Show it, don’t describe it.</text>
+  <text x="104" y="90" font-family="{DISPLAY}" font-size="48" font-weight="700" letter-spacing="-1" fill="{c['ink']}">Deixis</text>
+  <text x="840" y="88" text-anchor="end" font-family="{DISPLAY}" font-size="30" font-weight="650" letter-spacing="-.4" fill="{c['ink']}">Show it, don’t describe it.</text>
 
-  <!-- Option key held: top right, x 760..840, y 40..72 -->
-  <g class="a listen">
-    <rect x="760.5" y="40.5" width="79" height="31" rx="8" fill="{c['glass']}" stroke="{c['glass_line']}"/>
-    <rect x="768" y="46" width="24" height="20" rx="5" fill="{c['kbd']}"/>
-    <text x="780" y="61" text-anchor="middle" font-size="15" font-weight="600" fill="{c['ink']}">⌥</text>
-    <text x="800" y="61" font-size="15" fill="{c['ink2']}">held</text>
-  </g>
-
-  <!-- Trip Planner window: x 40..520, y 160..480 -->
-  <g filter="url(#sh)"><rect x="40" y="160" width="480" height="320" rx="12" fill="{c['oc_bg']}"/></g>
+  <!-- Trip Planner window: x 40..464, y 136..528 -->
+  <g filter="url(#sh)"><rect x="40" y="136" width="424" height="392" rx="12" fill="{c['oc_bg']}"/></g>
   <g clip-path="url(#win)">
-    <rect x="40" y="160" width="480" height="40" fill="{c['oc_bar']}"/>
-    <rect x="40" y="199.5" width="480" height="1" fill="{c['oc_line']}"/>
-    <circle cx="64" cy="180" r="6" fill="#ff5f57"/><circle cx="84" cy="180" r="6" fill="#febc2e"/><circle cx="104" cy="180" r="6" fill="#28c840"/>
-    <rect x="176" y="168" width="208" height="24" rx="7" fill="{c['oc_bg']}"/>
-    <text x="280" y="185" text-anchor="middle" font-size="14" fill="{c['oc_ink2']}"><tspan fill="{c['oc_ink']}" font-weight="600">localhost:5173</tspan>/trips</text>
-    <circle cx="72" cy="220" r="8" fill="{c['oc_brand']}"/>
-    <path d="M68.5 222.5l3.5-6 3.5 6z" fill="{c['oc_bg']}"/>
-    <text x="88" y="225.5" font-size="15" font-weight="700" fill="{c['oc_ink']}">Trip Planner</text>
-    <rect x="384" y="216" width="40" height="8" rx="4" fill="{c['oc_line']}"/>
-    <rect x="432" y="216" width="32" height="8" rx="4" fill="{c['oc_line']}"/>
-    <circle cx="488" cy="220" r="8" fill="{c['oc_brand2']}"/>
-    <rect x="40" y="239.5" width="480" height="1" fill="{c['oc_line']}"/>
-    <text x="64" y="282" font-family="{DISPLAY}" font-size="30" font-weight="700" letter-spacing="-.5" fill="{c['oc_ink']}">Lisbon</text>
-    <text x="64" y="308" font-size="15" fill="{c['oc_ink2']}">4 nights · 2 guests</text>
-    <rect x="432" y="264" width="64" height="32" rx="8" fill="{c['oc_brand']}"/>
-    <text x="464" y="285" text-anchor="middle" font-size="15" font-weight="650" fill="{c['oc_bg']}">Book</text>
+    <rect x="40" y="136" width="424" height="48" fill="{c['oc_bar']}"/>
+    <rect x="40" y="183.5" width="424" height="1" fill="{c['oc_line']}"/>
+    <circle cx="64" cy="160" r="6" fill="#ff5f57"/><circle cx="84" cy="160" r="6" fill="#febc2e"/><circle cx="104" cy="160" r="6" fill="#28c840"/>
+    <rect x="136" y="144" width="304" height="32" rx="8" fill="{c['oc_bg']}"/>
+    <text x="288" y="167" text-anchor="middle" font-size="20" fill="{c['oc_ink2']}"><tspan fill="{c['oc_ink']}" font-weight="600">localhost:5173</tspan>/trips</text>
+    <text x="64" y="256" font-family="{DISPLAY}" font-size="40" font-weight="700" letter-spacing="-.6" fill="{c['oc_ink']}">Lisbon</text>
+    <text x="64" y="292" font-size="22" fill="{c['oc_ink2']}">4 nights · 2 guests</text>
+    <rect x="328" y="232" width="112" height="48" rx="10" fill="{c['oc_brand']}"/>
+    <text x="384" y="264" text-anchor="middle" font-size="22" font-weight="650" fill="{c['oc_bg']}">Book</text>
     {''.join(cards)}
   </g>
 
-  <!-- Highlights where the pins drop -->
+  <!-- Highlights where the pins drop; the size tag sits inside the gap, clear of both cards -->
   <g id="hl1" class="a">
-    <rect x="428" y="260" width="72" height="40" rx="10" fill="{c['amber_soft']}" stroke="{c['amber_line']}" stroke-width="1.6"/>
-    <rect x="344" y="268" width="72" height="24" rx="6" fill="{c['amber']}"/>
-    <text x="380" y="285" text-anchor="middle" font-family="{MONO}" font-size="14" font-weight="600" fill="{c['pin_ink']}">64 × 32</text>
+    <rect x="322" y="226" width="124" height="60" rx="14" fill="{c['amber_soft']}" stroke="{c['amber_line']}" stroke-width="2"/>
   </g>
   <g id="hl2" class="a">
-    <rect x="180" y="336" width="56" height="120" rx="4" fill="url(#hatch)" stroke="{c['amber_line']}" stroke-width="1.4" stroke-dasharray="4 3"/>
-    <rect x="180" y="344" width="56" height="24" rx="6" fill="{c['amber']}"/>
-    <text x="208" y="361" text-anchor="middle" font-family="{MONO}" font-size="14" font-weight="600" fill="{c['pin_ink']}">64 px</text>
+    <rect x="212" y="312" width="80" height="192" rx="6" fill="url(#hatch)" stroke="{c['amber_line']}" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <rect x="216" y="432" width="72" height="32" rx="8" fill="{c['amber']}"/>
+    <text x="252" y="455" text-anchor="middle" font-family="{MONO}" font-size="20" font-weight="700" fill="{c['pin_ink']}">88 px</text>
   </g>
 
-  <!-- Begleiter HUD card: x 544..840, y 160..296 -->
-  <g id="card" class="a">
-    <g filter="url(#sh)"><rect x="544" y="160" width="296" height="136" rx="16" fill="{c['glass']}"/></g>
-    <rect x="544.5" y="160.5" width="295" height="135" rx="15.5" fill="none" stroke="{c['glass_line']}"/>
-    <g fill="{c['amber']}">
-      <rect class="wv" x="562" y="178" width="3" height="12" rx="1.5"/>
-      <rect class="wv" x="567.5" y="174" width="3" height="20" rx="1.5"/>
-      <rect class="wv" x="573" y="177" width="3" height="14" rx="1.5"/>
-      <rect class="wv" x="578.5" y="173" width="3" height="22" rx="1.5"/>
-    </g>
-    <text x="592" y="189" font-size="14" fill="{c['ink2']}"><tspan font-weight="700" fill="{c['ink']}">Trip Planner</tspan> · Oct 21</text>
-    <g font-size="14" fill="{c['ink3']}" text-anchor="end">
-      <text id="c0" class="a" x="824" y="189">0 points</text>
-      <text id="c1" class="a" x="824" y="189">1 point</text>
-      <text id="c2" class="a" x="824" y="189">2 points</text>
-    </g>
-    <rect x="544" y="207.6" width="296" height=".8" fill="{c['line']}"/>
-    <g id="b1" class="a"><circle cx="572" cy="236" r="11" fill="{c['pin']}"/><text x="572" y="241" text-anchor="middle" font-size="14" font-weight="800" fill="{c['pin_ink']}">1</text></g>
-    <g id="b2" class="a"><circle cx="572" cy="268" r="11" fill="{c['pin']}"/><text x="572" y="273" text-anchor="middle" font-size="14" font-weight="800" fill="{c['pin_ink']}">2</text></g>
-    {l1}
-    {l2}
+  <!-- Spoken card: x 488..840, y 136..304, always on screen -->
+  <g filter="url(#sh)"><rect x="488" y="136" width="352" height="168" rx="16" fill="{c['glass']}"/></g>
+  <rect x="488.5" y="136.5" width="351" height="167" rx="15.5" fill="none" stroke="{c['glass_line']}"/>
+  <g fill="{c['amber']}">
+    <rect class="wv" x="510" y="161" width="4" height="14" rx="2"/>
+    <rect class="wv" x="517" y="156" width="4" height="24" rx="2"/>
+    <rect class="wv" x="524" y="160" width="4" height="16" rx="2"/>
+    <rect class="wv" x="531" y="155" width="4" height="26" rx="2"/>
   </g>
-
-  <!-- Claude Code session: x 544..840, y 320..480 -->
-  <g filter="url(#sh)"><rect x="544" y="320" width="296" height="160" rx="12" fill="{c['term']}"/></g>
-  <g font-family="{MONO}" font-size="14" fill="{c['term_ink']}">
-    <rect x="544" y="351.6" width="296" height=".8" fill="#ffffff" fill-opacity=".1"/>
-    <circle cx="564" cy="336" r="4.5" fill="#ffffff" fill-opacity=".18"/><circle cx="578" cy="336" r="4.5" fill="#ffffff" fill-opacity=".18"/><circle cx="592" cy="336" r="4.5" fill="#ffffff" fill-opacity=".18"/>
-    {spark(612, 341, "#ffb24a", 14 / 11.5)}<text x="629" y="341">Claude Code</text>
-    <text x="560" y="380" fill="{c['term_dim']}">&gt; /deixis-watch</text>
-    <text x="560" y="400"><tspan fill="#ffb24a">●</tspan> watch_rounds()</text>
-    <text id="t1" class="a" x="560" y="420" xml:space="preserve" fill="{c['term_dim']}">  Trip Planner · 2 points</text>
-    <g id="t2" class="a">{check(560, 440, "#6fd48b", 14 / 11.5)}<text x="577" y="440">Point 1 done</text></g>
-    <g id="t3" class="a">{check(560, 460, "#6fd48b", 14 / 11.5)}<text x="577" y="460">Point 2 done</text></g>
+  <text x="548" y="176" font-size="20" font-weight="700" fill="{c['ink']}">Trip Planner</text>
+  <g font-size="20" fill="{c['ink2']}" text-anchor="end">
+    <text id="c0" class="a" x="816" y="176">0 points</text>
+    <text id="c1" class="a" x="816" y="176">1 point</text>
+    <text id="c2" class="a" x="816" y="176">2 points</text>
   </g>
+  <rect x="488" y="199.5" width="352" height="1" fill="{c['line']}"/>
+  {rows}
 
-  <!-- Threads from the spoken word to the pointer -->
-  <line id="th1" class="a" x1="561" y1="236" x2="{T1[0]}" y2="{T1[1] - 28}" pathLength="1" stroke-dasharray="1" stroke="{c['amber_line']}" stroke-width="1.6" stroke-linecap="round"/>
-  <line id="th2" class="a" x1="561" y1="268" x2="{T2[0]}" y2="{T2[1] - 28}" pathLength="1" stroke-dasharray="1" stroke="{c['amber_line']}" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- Claude Code session: x 488..840, y 328..528 -->
+  <g filter="url(#sh)"><rect x="488" y="328" width="352" height="200" rx="12" fill="{c['term']}"/></g>
+  <g font-family="{MONO}" font-size="20" fill="{c['term_ink']}">
+    <rect x="488" y="367.5" width="352" height="1" fill="#ffffff" fill-opacity=".1"/>
+    <circle cx="510" cy="348" r="5" fill="#ffffff" fill-opacity=".18"/><circle cx="526" cy="348" r="5" fill="#ffffff" fill-opacity=".18"/><circle cx="542" cy="348" r="5" fill="#ffffff" fill-opacity=".18"/>
+    {spark(564, 355, "#ffb24a", s)}<text x="588" y="355">Claude Code</text>
+    <text x="512" y="404" fill="{c['term_dim']}">&gt; /deixis-watch</text>
+    <text x="512" y="436"><tspan fill="#ffb24a">●</tspan> watch_rounds()</text>
+    <text id="wait" class="a" x="512" y="468" xml:space="preserve" fill="{c['term_dim']}">  waiting for a round</text>
+    <g id="t2" class="a">{check(512, 468, "#6fd48b", s)}<text x="536" y="468">Point 1 done</text></g>
+    <g id="t3" class="a">{check(512, 500, "#6fd48b", s)}<text x="536" y="500">Point 2 done</text></g>
+  </g>
 
   {pin(1, *T1, c)}
   {pin(2, *T2, c)}
 
   <!-- Pointer -->
   <g id="cur" class="a">
-    <path d="{POINTER}" transform="scale(1.2) translate(-2 -2)" fill="#111" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" filter="url(#shs)"/>
+    <path d="{POINTER}" transform="scale(1.25) translate(-2 -2)" fill="#111" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" filter="url(#shs)"/>
   </g>
 
   <!-- Screen edge light while listening -->
@@ -330,7 +319,6 @@ def build(c, mode):
 </g>
 </svg>
 """
-
 
 if __name__ == "__main__":
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else ASSETS

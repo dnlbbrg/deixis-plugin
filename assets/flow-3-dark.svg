@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="560" height="288" viewBox="0 0 560 288" role="img" aria-labelledby="title desc" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, 'Helvetica Neue', Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="384" viewBox="0 0 880 384" role="img" aria-labelledby="title desc" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, 'Helvetica Neue', Arial, sans-serif">
 <title id="title">Step 3: your Claude Code session</title>
 <desc id="desc">Claude Code receives the round through watch_rounds and marks point 1 and point 2 done.</desc>
 <defs>
@@ -8,17 +8,17 @@
     <stop offset="0" stop-color="#141a24"/><stop offset=".52" stop-color="#18171d"/><stop offset="1" stop-color="#221817"/>
   </linearGradient>
 </defs>
-<rect width="560" height="288" rx="16" fill="url(#wall)"/>
+<rect width="880" height="384" rx="16" fill="url(#wall)"/>
 
-<g filter="url(#sh)"><rect x="32" y="32" width="496" height="224" rx="12" fill="#0b0c0e"/></g>
-<rect x="32" y="71.5" width="496" height="1" fill="#ffffff" fill-opacity=".1"/>
-<circle cx="56" cy="52" r="6" fill="#ffffff" fill-opacity=".18"/><circle cx="76" cy="52" r="6" fill="#ffffff" fill-opacity=".18"/><circle cx="96" cy="52" r="6" fill="#ffffff" fill-opacity=".18"/>
-<g font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="20" fill="#d9dade">
-  <path d="M126.087 44.5652v14.9565M119.61 48.30l12.95 7.48M119.61 55.78l12.95 -7.48" stroke="#ffb24a" stroke-width="2.95652" stroke-linecap="round"/><text x="144" y="59">Claude Code</text>
-  <text x="56" y="112" fill="#8a8d94">&gt; /deixis-watch</text>
-  <text x="56" y="140"><tspan fill="#ffb24a">●</tspan> watch_rounds()</text>
-  <text x="56" y="168" xml:space="preserve" fill="#8a8d94">  Trip Planner · 2 points</text>
-  <path d="M57.0435 188.696l4.17391 4.52174 8 -10.4348" fill="none" stroke="#6fd48b" stroke-width="2.95652" stroke-linecap="round" stroke-linejoin="round"/><text x="80" y="196">Point 1 done</text>
-  <path d="M57.0435 216.696l4.17391 4.52174 8 -10.4348" fill="none" stroke="#6fd48b" stroke-width="2.95652" stroke-linecap="round" stroke-linejoin="round"/><text x="80" y="224">Point 2 done</text>
+<g filter="url(#sh)"><rect x="32" y="32" width="816" height="320" rx="16" fill="#0b0c0e"/></g>
+<rect x="32" y="87.5" width="816" height="1" fill="#ffffff" fill-opacity=".1"/>
+<circle cx="64" cy="60" r="8" fill="#ffffff" fill-opacity=".18"/><circle cx="88" cy="60" r="8" fill="#ffffff" fill-opacity=".18"/><circle cx="112" cy="60" r="8" fill="#ffffff" fill-opacity=".18"/>
+<g font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="28" fill="#d9dade">
+  <path d="M152.522 49.7913v20.9391M143.46 55.03l18.13 10.47M143.46 65.50l18.13 -10.47" stroke="#ffb24a" stroke-width="4.13913" stroke-linecap="round"/><text x="176" y="70">Claude Code</text>
+  <text x="64" y="136" fill="#8a8d94">&gt; /deixis-watch</text>
+  <text x="64" y="180"><tspan fill="#ffb24a">●</tspan> watch_rounds()</text>
+  <text x="64" y="224" xml:space="preserve" fill="#8a8d94">  Trip Planner · 2 points</text>
+  <path d="M65.4609 257.774l5.84348 6.33043 11.2 -14.6087" fill="none" stroke="#6fd48b" stroke-width="4.13913" stroke-linecap="round" stroke-linejoin="round"/><text x="100" y="268">Point 1 done</text>
+  <path d="M65.4609 301.774l5.84348 6.33043 11.2 -14.6087" fill="none" stroke="#6fd48b" stroke-width="4.13913" stroke-linecap="round" stroke-linejoin="round"/><text x="100" y="312">Point 2 done</text>
 </g>
 </svg>

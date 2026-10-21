@@ -30,11 +30,11 @@ The plugin does not bring its own server. It starts the MCP helper that ships in
 
 ### 1. Point and talk
 
-<p>
+<p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/flow-1-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="assets/flow-1-light.svg">
-    <img src="assets/flow-1-light.svg" width="560" alt="A pin with the number 1 drops on the Book button of a page while you say: this button is too small.">
+    <img src="assets/flow-1-light.svg" width="880" alt="A pin with the number 1 drops on the Book button of a page while you say: this button is too small.">
   </picture>
 </p>
 
@@ -42,11 +42,11 @@ Hold right ⌥, point at something and say what should change. Each “this” o
 
 ### 2. Send the round
 
-<p>
+<p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/flow-2-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="assets/flow-2-light.svg">
-    <img src="assets/flow-2-light.svg" width="560" alt="A round of two numbered points, each with a picture: button too small, gap too big.">
+    <img src="assets/flow-2-light.svg" width="880" alt="A round of two numbered points, each with a picture: button too small, gap too big.">
   </picture>
 </p>
 
@@ -57,11 +57,11 @@ The points are collected in a round. When you send the round to a session, it re
 
 ### 3. Claude Code works through it
 
-<p>
+<p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/flow-3-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="assets/flow-3-light.svg">
-    <img src="assets/flow-3-light.svg" width="560" alt="A Claude Code session receives the round through watch_rounds and marks both points done.">
+    <img src="assets/flow-3-light.svg" width="880" alt="A Claude Code session receives the round through watch_rounds and marks both points done.">
   </picture>
 </p>
 
@@ -116,5 +116,3 @@ Deixis has no account, no server and no tracking.
 ## License
 
 The plugin in this repository (the launcher script, hooks, command and configuration) is released under the [MIT License](LICENSE). The Deixis app itself is not covered by this license.
-
-<p align="center"><sub><a href="https://deixis.folnaro.app/en/">deixis.folnaro.app</a> · <a href="https://deixis.folnaro.app/en/support/">Support</a></sub></p>
