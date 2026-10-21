@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="288" viewBox="0 0 560 288" role="img" aria-labelledby="title desc" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, 'Helvetica Neue', Arial, sans-serif">
+<title id="title">Step 1: point and talk</title>
+<desc id="desc">A pin with the number 1 drops on the Book button of a Trip Planner page while you say: this button is too small.</desc>
+<defs>
+  <filter id="sh" x="-20%" y="-20%" width="140%" height="170%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#1e1e28" flood-opacity="0.18"/></filter>
+  <filter id="shs" x="-60%" y="-60%" width="220%" height="240%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#000" flood-opacity=".3"/></filter>
+  <linearGradient id="wall" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#dde5ee"/><stop offset=".52" stop-color="#ece8e2"/><stop offset="1" stop-color="#f2e2d6"/>
+  </linearGradient>
+</defs>
+<rect width="560" height="288" rx="16" fill="url(#wall)"/>
+
+<g filter="url(#sh)"><rect x="32" y="32" width="496" height="136" rx="12" fill="#f6f7f9"/></g>
+<rect x="32.5" y="32.5" width="495" height="135" rx="11.5" fill="none" stroke="#e6e8ec"/>
+<text x="56" y="88" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="700" letter-spacing="-.5" fill="#1b1f24">Lisbon</text>
+<text x="56" y="128" font-size="20" fill="#68707b">4 nights · 2 guests</text>
+<rect x="404" y="92" width="104" height="48" rx="12" fill="rgba(255,163,26,.16)" stroke="rgba(240,140,0,.85)" stroke-width="1.6"/>
+<rect x="408" y="96" width="96" height="40" rx="9" fill="#0f6b5c"/>
+<text x="456" y="123" text-anchor="middle" font-size="20" font-weight="650" fill="#f6f7f9">Book</text>
+<rect x="454.5" y="80" width="3" height="16" rx="1.2" fill="#ffaa2b"/>
+<circle cx="456" cy="64" r="16" fill="#ffaa2b" stroke="#ffffff" stroke-width="2.4" filter="url(#shs)"/>
+<text x="456" y="71" text-anchor="middle" font-size="20" font-weight="800" fill="#3a2200">1</text>
+<path d="M2 2v22l6-5.6 3.8 8.6 3.4-1.5-3.7-8.4H20z" transform="translate(488 126) scale(1.2) translate(-2 -2)" fill="#111" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" filter="url(#shs)"/>
+<g filter="url(#sh)"><rect x="32" y="192" width="496" height="64" rx="16" fill="rgba(250,250,252,.88)"/></g><rect x="32.5" y="192.5" width="495" height="63" rx="15.5" fill="none" stroke="rgba(255,255,255,.9)"/>
+<circle cx="64" cy="224" r="15" fill="#ffaa2b"/><text x="64" y="231" text-anchor="middle" font-size="20" font-weight="800" fill="#3a2200">1</text>
+<text x="96" y="232" font-size="22" fill="#1d1d1f"><tspan font-weight="700" fill="#8f4b00">This</tspan> button is too small.</text>
+</svg>

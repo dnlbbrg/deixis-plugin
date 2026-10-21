@@ -1,23 +1,21 @@
-<div align="center">
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="assets/banner-light.svg">
-  <img src="assets/banner-light.svg" width="100%" alt="Deixis plugin for Claude Code. A pointer drops two numbered pins on a Trip Planner page while the spoken line appears in a small card, and the round arrives in a Claude Code session.">
-</picture>
-
-<p>The Claude Code plugin for <a href="https://deixis.folnaro.app/en/">Deixis</a>, the Mac app for screenshot feedback.</p>
-
-<p>
-<img alt="macOS 26 or later" src="https://img.shields.io/badge/macOS-26%20or%20later-1d1d1f?style=flat-square&logo=apple&logoColor=white">
-<img alt="Mac App Store: coming soon" src="https://img.shields.io/badge/Mac%20App%20Store-coming%20soon-ffa31a?style=flat-square&labelColor=1d1d1f">
-<img alt="Claude Code plugin" src="https://img.shields.io/badge/Claude%20Code-plugin-0f6b5c?style=flat-square&labelColor=1d1d1f">
-<a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-55555c?style=flat-square&labelColor=1d1d1f"></a>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/banner-light.svg">
+    <img src="assets/banner-light.svg" width="880" alt="Deixis plugin for Claude Code. A pointer drops two numbered pins on a Trip Planner page while the spoken line appears in a small card, and the round arrives in a Claude Code session.">
+  </picture>
 </p>
 
-<p><a href="https://deixis.folnaro.app/en/">Website</a> · <a href="https://deixis.folnaro.app/en/support/">Support</a> · <a href="https://deixis.folnaro.app/en/privacy/">Privacy</a></p>
+<p align="center">The Claude Code plugin for <a href="https://deixis.folnaro.app/en/">Deixis</a>, the Mac app for screenshot feedback.</p>
 
-</div>
+<p align="center">
+  <a href="https://apps.apple.com/app/deixis/id6825313161"><img alt="Mac App Store" src="https://img.shields.io/badge/Mac%20App%20Store-0d84ff?style=flat-square&logo=apple&logoColor=white"></a>
+  <img alt="macOS 26 or later" src="https://img.shields.io/badge/macOS-26%20or%20later-1d1d1f?style=flat-square&logo=apple&logoColor=white">
+  <img alt="Claude Code plugin" src="https://img.shields.io/badge/Claude%20Code-plugin-0f6b5c?style=flat-square&labelColor=1d1d1f">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-55555c?style=flat-square&labelColor=1d1d1f"></a>
+</p>
+
+<p align="center"><a href="https://apps.apple.com/app/deixis/id6825313161">Mac App Store</a> · <a href="https://deixis.folnaro.app/en/">Website</a> · <a href="https://deixis.folnaro.app/en/support/">Support</a> · <a href="https://deixis.folnaro.app/en/privacy/">Privacy</a></p>
 
 ## Install
 
@@ -30,16 +28,42 @@ The plugin does not bring its own server. It starts the MCP helper that ships in
 
 ## How a round arrives
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/flow-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="assets/flow-light.svg">
-  <img src="assets/flow-light.svg" width="100%" alt="Three steps: point and talk, a round of numbered points with pictures, and a Claude Code session that works through it point by point.">
-</picture>
+### 1. Point and talk
 
-Hold right ⌥, point and talk. Each “this” or “here” becomes a numbered point with a picture, collected in a round. When you send the round to a session, it reaches Claude Code in one of two ways:
+<p>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/flow-1-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/flow-1-light.svg">
+    <img src="assets/flow-1-light.svg" width="560" alt="A pin with the number 1 drops on the Book button of a page while you say: this button is too small.">
+  </picture>
+</p>
+
+Hold right ⌥, point at something and say what should change. Each “this” or “here” becomes a numbered point with a picture.
+
+### 2. Send the round
+
+<p>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/flow-2-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/flow-2-light.svg">
+    <img src="assets/flow-2-light.svg" width="560" alt="A round of two numbered points, each with a picture: button too small, gap too big.">
+  </picture>
+</p>
+
+The points are collected in a round. When you send the round to a session, it reaches Claude Code in one of two ways:
 
 - **Right away**, if the session is running `/deixis-watch`. It waits for rounds and works through each one as it arrives.
 - **With your next prompt** otherwise. The plugin adds the waiting rounds to the context of the next message you send.
+
+### 3. Claude Code works through it
+
+<p>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/flow-3-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/flow-3-light.svg">
+    <img src="assets/flow-3-light.svg" width="560" alt="A Claude Code session receives the round through watch_rounds and marks both points done.">
+  </picture>
+</p>
 
 While it works, Claude Code reports back per point: in progress, done with a short summary, or rejected with a reason. Questions go back to you as replies on the point.
 
@@ -86,13 +110,11 @@ Deixis has no account, no server and no tracking.
 ## Requirements
 
 - macOS 26 or later
-- [Deixis](https://deixis.folnaro.app/en/), coming soon to the Mac App Store
+- [Deixis from the Mac App Store](https://apps.apple.com/app/deixis/id6825313161)
 - Claude Code with plugin support
 
 ## License
 
 The plugin in this repository (the launcher script, hooks, command and configuration) is released under the [MIT License](LICENSE). The Deixis app itself is not covered by this license.
-
-<br>
 
 <p align="center"><sub><a href="https://deixis.folnaro.app/en/">deixis.folnaro.app</a> · <a href="https://deixis.folnaro.app/en/support/">Support</a></sub></p>

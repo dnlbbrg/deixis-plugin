@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="288" viewBox="0 0 560 288" role="img" aria-labelledby="title desc" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, 'Helvetica Neue', Arial, sans-serif">
+<title id="title">Step 2: a round</title>
+<desc id="desc">The Trip Planner round of Oct 21 holds two numbered points, each with a picture: button too small, gap too big.</desc>
+<defs>
+  <filter id="sh" x="-20%" y="-20%" width="140%" height="170%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#1e1e28" flood-opacity="0.18"/></filter>
+  <filter id="shs" x="-60%" y="-60%" width="220%" height="240%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#000" flood-opacity=".3"/></filter>
+  <linearGradient id="wall" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#dde5ee"/><stop offset=".52" stop-color="#ece8e2"/><stop offset="1" stop-color="#f2e2d6"/>
+  </linearGradient>
+  <linearGradient id="img0" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9d2ec"/><stop offset="1" stop-color="#4d8fc2"/></linearGradient>
+  <linearGradient id="img1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6dfba"/><stop offset="1" stop-color="#e2a466"/></linearGradient>
+</defs>
+<rect width="560" height="288" rx="16" fill="url(#wall)"/>
+
+<g filter="url(#sh)"><rect x="32" y="32" width="496" height="224" rx="16" fill="rgba(250,250,252,.88)"/></g><rect x="32.5" y="32.5" width="495" height="223" rx="15.5" fill="none" stroke="rgba(255,255,255,.9)"/>
+<text x="56" y="72" font-size="20" fill="#55555c"><tspan font-weight="700" fill="#1d1d1f">Trip Planner</tspan> · Oct 21</text>
+<text x="504" y="72" text-anchor="end" font-size="20" fill="#8e8e95">2 points</text>
+<rect x="32" y="95.5" width="496" height="1" fill="rgba(0,0,0,.09)"/>
+<rect x="56" y="112" width="88" height="56" rx="8" fill="url(#img0)"/>
+<rect x="56.5" y="112.5" width="87" height="55" rx="7.5" fill="none" stroke="#e6e8ec"/>
+<circle cx="176" cy="140" r="15" fill="#ffaa2b"/><text x="176" y="147" text-anchor="middle" font-size="20" font-weight="800" fill="#3a2200">1</text>
+<text x="208" y="148" font-size="22" fill="#1d1d1f">Button too small</text>
+<rect x="56" y="184" width="88" height="56" rx="8" fill="url(#img1)"/>
+<rect x="56.5" y="184.5" width="87" height="55" rx="7.5" fill="none" stroke="#e6e8ec"/>
+<circle cx="176" cy="212" r="15" fill="#ffaa2b"/><text x="176" y="219" text-anchor="middle" font-size="20" font-weight="800" fill="#3a2200">2</text>
+<text x="208" y="220" font-size="22" fill="#1d1d1f">Gap too big</text>
+</svg>
