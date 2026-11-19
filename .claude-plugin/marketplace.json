@@ -7,14 +7,14 @@
   },
   "metadata": {
     "description": "Claude Code plugin for Deixis, the Mac app for screenshot feedback delivered as review rounds",
-    "version": "0.1.0"
+    "version": "0.3.0"
   },
   "plugins": [
     {
       "name": "deixis",
       "source": "./plugin",
       "description": "Screenshot feedback for anyone, delivered as review rounds. Point at the screen and speak, and Claude Code receives numbered points with a screenshot each, can watch for new rounds and report back per point.",
-      "version": "0.1.0",
+      "version": "0.3.0",
       "author": {
         "name": "Daniel Boberg",
         "email": "post@danielboberg.de",

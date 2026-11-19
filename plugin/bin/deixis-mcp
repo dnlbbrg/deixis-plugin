@@ -1,13 +1,18 @@
 #!/bin/bash
 # Launcher for the Deixis MCP helper. Claude Code runs it for the MCP server entry and for the hooks.
 #   deixis-mcp                 serves MCP over stdio
-#   deixis-mcp hook <event>    handles a Claude Code hook (session-start, session-end, prompt-submit)
+#   deixis-mcp hook <event>    handles a Claude Code hook (session-start, session-end, prompt-submit, post-tool, stop)
 # The helper lives inside the app: /Applications first, then ~/Applications, then wherever Spotlight finds the bundle.
 # `exec` keeps the helper a direct child of Claude Code, which is how it learns its session.
 
 # Only /Applications needs admin rights to write to. A bundle anywhere else runs only if it is validly signed by the
 # Deixis team, so a planted app with the same bundle id is never executed.
 TEAM_ID="AY9VQ7X6DM"
+
+# The version of this launcher and the plugin around it (plugin/.claude-plugin/plugin.json; scripts/tests/test-plugin-launcher.sh
+# fails when the two differ). Every hook passes it to the helper, which tells a session whose plugin is older than the app
+# needs to update it (row 196). A 0.1.0 or 0.2.0 launcher exports nothing, which reads as outdated.
+PLUGIN_VERSION="0.3.0"
 
 signed_by_team() {
   codesign --verify --strict "$1" 2>/dev/null &&
@@ -34,6 +39,132 @@ find_helper() {
   return 1
 }
 
+# The first string value of a key in the hook's JSON payload; nothing for a value with an escaped character.
+json_string() {
+  local pattern="\"$2\"[[:space:]]*:[[:space:]]*\"([^\"\\\\]*)\""
+  if [[ $1 =~ $pattern ]]; then
+    printf '%s' "${BASH_REMATCH[1]}"
+  fi
+}
+
+first_line() {
+  head -n 1 "$1" 2>/dev/null
+}
+
+# The git checkout around a folder, for the session's name in Deixis (row 76): sets DEIXIS_REPO_ROOT to the main
+# worktree (also when the folder is a linked worktree, whose .git file points into the main one's .git/worktrees),
+# DEIXIS_BRANCH and DEIXIS_DEFAULT_BRANCH (origin's HEAD). Reads files only: running git would ask to install the
+# developer tools on a Mac without them.
+git_context() {
+  local dir="$1" gitdir="" top line common
+  while [ -n "$dir" ] && [ ! -e "$dir/.git" ] && [ "$dir" != "/" ]; do
+    dir="$(dirname "$dir")"
+  done
+  [ -n "$dir" ] && [ -e "$dir/.git" ] || return 0
+  top="$dir"
+  if [ -d "$dir/.git" ]; then
+    gitdir="$dir/.git"
+  else
+    line="$(first_line "$dir/.git")"
+    case "$line" in "gitdir: "*) gitdir="${line#gitdir: }" ;; *) return 0 ;; esac
+    case "$gitdir" in /*) ;; *) gitdir="$dir/$gitdir" ;; esac
+  fi
+  common="$gitdir"
+  if [ -f "$gitdir/commondir" ]; then
+    line="$(first_line "$gitdir/commondir")"
+    case "$line" in /*) common="$line" ;; *) common="$gitdir/$line" ;; esac
+    common="$(cd "$common" 2>/dev/null && pwd -P)" || return 0
+    # A linked worktree: the repository is the folder holding the shared .git (or the bare repository itself).
+    if [ "$(basename "$common")" = ".git" ]; then top="$(dirname "$common")"; else top="$common"; fi
+  fi
+  export DEIXIS_REPO_ROOT="$top"
+  line="$(first_line "$gitdir/HEAD")"
+  case "$line" in "ref: refs/heads/"*) export DEIXIS_BRANCH="${line#ref: refs/heads/}" ;; esac
+  line="$(first_line "$common/refs/remotes/origin/HEAD")"
+  case "$line" in "ref: refs/remotes/origin/"*) export DEIXIS_DEFAULT_BRANCH="${line#ref: refs/remotes/origin/}" ;; esac
+}
+
+# What the sandboxed helper cannot read itself, for a hook (row 76): the git context of the session's folder and,
+# when the payload carries no session_title (older Claude Code), the newest title entries of the transcript: a
+# /rename, the title Claude Code generated, an older version's summary. Claude Code (2.1.308) writes them as
+# {"type":"custom-title","customTitle":...,"sessionId":...}, {"type":"ai-title","aiTitle":...,"sessionId":...} and
+# reads legacy {"type":"summary","summary":...,"leafUuid":...}; it finds them by substring, not by position, so this
+# does the same. Inside a JSON string every quote is escaped, so only an entry's own keys match, and the helper checks
+# the top level type again. $1 is the hook event, $2 the payload.
+hook_context() {
+  local cwd transcript entries
+  cwd="$(json_string "$2" cwd)"
+  [ -n "$cwd" ] && [ -d "$cwd" ] || cwd="$PWD"
+  git_context "$cwd"
+  case "$1" in session-start | prompt-submit) ;; *) return 0 ;; esac
+  case "$2" in *'"session_title"'*) return 0 ;; esac
+  transcript="$(json_string "$2" transcript_path)"
+  [ -n "$transcript" ] && [ -f "$transcript" ] || return 0
+  entries="$(LC_ALL=C grep -E '"type":"(custom-title|ai-title|summary)"' -- "$transcript" 2>/dev/null)"
+  [ -n "$entries" ] || return 0
+  DEIXIS_CUSTOM_TITLE_ENTRY="$(printf '%s\n' "$entries" | LC_ALL=C grep -F '"type":"custom-title"' | tail -n 1 | head -c 2000 || true)"
+  DEIXIS_AI_TITLE_ENTRY="$(printf '%s\n' "$entries" | LC_ALL=C grep -F '"type":"ai-title"' | tail -n 1 | head -c 2000 || true)"
+  DEIXIS_SUMMARY_ENTRY="$(printf '%s\n' "$entries" | LC_ALL=C grep -F '"type":"summary"' | tail -n 1 | head -c 2000 || true)"
+  export DEIXIS_CUSTOM_TITLE_ENTRY DEIXIS_AI_TITLE_ENTRY DEIXIS_SUMMARY_ENTRY
+}
+
+# Where the helper is expected for a beat. A beat never searches (no codesign, no Spotlight): outside /Applications it is
+# simply not taken. Production passes only this path, never anything from the environment.
+APP_HELPER="/Applications/Deixis.app/Contents/MacOS/deixis-mcp"
+
+# A beat is due at most once a minute per session and per kind of caller, so a worker never takes the session's own beat
+# (row 158). The stamps live in $TMPDIR, never in the App Group container: the launcher is not sandboxed, and writing
+# into another app's group container can raise a macOS prompt on macOS 15 and later. The launcher only picks a stamp: a
+# wrong pick costs a helper run, the helper decides from the parsed payload. A subagent (agent_id in the payload) and an
+# agent in a throwaway worktree use the workers' stamp. Returns 0 and touches the stamp when due. $1 is the payload, $2
+# the helper path, $3 the session id, $4 the folder of the stamps (tests hand in their own).
+activity_due() {
+  local stamp="${4:-${TMPDIR:-/tmp}}/deixis-beat-$3"
+  # A launch of background workers (an Agent or Workflow call answering "async_launched") is always due: the helper must
+  # hear of it before the turn's Stop, whatever the stamp says. The helper decides from the parsed payload.
+  case "$1" in *'"async_launched"'*) [ -x "$2" ] && return 0 || return 1 ;; esac
+  case "$1" in *'"agent_id"'*) stamp="$stamp-worker" ;; esac
+  # The cwd read in this shell, not through json_string: no subshell on the path every tool call takes.
+  local cwd_pattern='"cwd"[[:space:]]*:[[:space:]]*"([^"\\]*)"'
+  if [[ $1 =~ $cwd_pattern ]]; then
+    case "${BASH_REMATCH[1]}" in */.claude/worktrees/*) stamp="${stamp%-worker}-worker" ;; esac
+  fi
+  # One process: BSD find rounds the age up to whole minutes, so "-mmin -2" is a stamp of at most 60 seconds.
+  [ -z "$(find "$stamp" -maxdepth 0 -mmin -2 2>/dev/null)" ] || return 1
+  [ -x "$2" ] || return 1
+  touch "$stamp" 2>/dev/null
+}
+
+# The PostToolUse hook has no matcher that could tell a stopped round from any other tool call, so it runs after every
+# tool call of every session. It must cost next to nothing then (row 123): the app leaves an empty file named after the
+# session in the App Group container when it stops a round ("withdrawn/") or sends it points ("pending/", row 196), and
+# without such a file, and with no beat due, the launcher
+# ends here, before it looks for the helper (codesign, Spotlight) or starts it. A session id with other characters than
+# letters, digits, "_" and "-" never gets a file, so it always goes on to the helper. $1 is the payload, $2 the container,
+# $3 the helper path and $4 the folder of the stamps (tests hand in their own).
+post_tool_has_nothing_to_say() {
+  local id container="${2:-$HOME/Library/Group Containers/AY9VQ7X6DM.app.deixis}"
+  id="$(json_string "$1" session_id)"
+  [ -n "$id" ] || return 0
+  [ "${#id}" -le 200 ] || return 1
+  case "$id" in *[!A-Za-z0-9_-]*) return 1 ;; esac
+  [ ! -e "$container/withdrawn/$id" ] || return 1
+  [ ! -e "$container/pending/$id" ] || return 1
+  ! activity_due "$1" "${3:-$APP_HELPER}" "$id" "${4:-}"
+}
+
+# Sourced by scripts/tests/test-plugin-launcher.sh for the functions above.
+if [ "${BASH_SOURCE[0]}" != "$0" ]; then
+  return 0
+fi
+
+if [ "${1:-}" = "hook" ] && [ "${2:-}" = "post-tool" ]; then
+  payload="$(cat)"
+  if post_tool_has_nothing_to_say "$payload"; then
+    exit 0
+  fi
+fi
+
 if ! helper="$(find_helper)"; then
   # Hooks stay silent so Claude Code works as before; the MCP entry says why it cannot start.
   if [ "${1:-}" = "hook" ]; then
@@ -43,4 +174,10 @@ if ! helper="$(find_helper)"; then
   exit 1
 fi
 
+if [ "${1:-}" = "hook" ]; then
+  [ -n "${payload+x}" ] || payload="$(cat)"
+  hook_context "${2:-}" "$payload"
+  export DEIXIS_PLUGIN_VERSION="$PLUGIN_VERSION"
+  exec "$helper" "$@" <<<"$payload"
+fi
 exec "$helper" "$@"
